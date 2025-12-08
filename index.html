@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinâmica de Incêndios Florestais: Análise Espaciotemporal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        /* Animação subtil para o botão de scroll */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 2s infinite;
+        }
+
+        /* Transição suave das imagens do mapa */
+        #dynamic-map-image {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade-out {
+            opacity: 0;
+        }
+
+        /* Estilo do botão de navegação no mapa */
+        .nav-btn-hover:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+        }
+
+        /* Estilo do Botão de Navegação Global */
+        #global-nav-btn {
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800">
+
+    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0 opacity-90">
+            <source src="img/2.mp4" type="video/mp4">
+        </video>
+        
+        <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90 z-10"></div>
+        
+        <div class="relative z-20 text-center px-4 max-w-5xl">
+            <div class="inline-block px-3 py-1 mb-6 border border-orange-500/50 rounded-full bg-orange-500/10 backdrop-blur-sm">
+                <span class="text-xs font-bold tracking-widest text-orange-400 uppercase">Análise Espacial &bull; Universidade do Minho</span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight drop-shadow-lg">
+                O Maior Incêndio Florestal de Portugal
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-200 mb-12 font-light max-w-3xl mx-auto drop-shadow-md">
+                 <span class="font-semibold text-orange-200">David Quintas</span> & <span class="font-semibold text-orange-200">Nuno Carvalho</span>
+            </p>
+            
+            <button id="scroll-btn" onclick="document.getElementById('video-section').scrollIntoView({behavior: 'smooth'})" class="group relative px-8 py-3 overflow-hidden rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40">
+                <div class="flex items-center gap-2">
+                    <span class="font-medium tracking-wide">Explorar Análise</span>
+                    <i data-feather="arrow-down" class="w-4 h-4 animate-bounce-slow"></i>
+                </div>
+            </button>
+        </div>
+    </section>
+
+    <section id="video-section" class="py-16 bg-black border-b border-slate-800">
+        <div class="container mx-auto px-4 max-w-5xl">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Contexto: A Dimensão da Tragédia</h2>
+                <p class="text-slate-400">Análise do impacte do incêndio de Arganil e a sua escala histórica em Portugal.</p>
+            </div>
+            
+            <div class="relative pt-[56.25%] rounded-2xl overflow-hidden shadow-2xl border border-slate-900 bg-black">
+                <iframe class="absolute top-0 left-0 w-full h-full" 
+                        src="https://www.youtube.com/embed/M0BWvqraXZw" 
+                        title="YouTube video player" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="methodology" class="py-24 bg-slate-50">
+        <div class="container mx-auto px-4">
+            
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 pt-12 text-slate-900">Estrutura do Trabalho</h2>
+            
+            <div class="flex flex-col md:flex-row justify-between items-stretch gap-4 mb-20">
+                
+                <div class="method-card group bg-white border border-slate-200 p-6 rounded-2xl flex-1 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 flex flex-col items-center justify-center text-center">
+                    <div class="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i data-feather="help-circle" class="text-orange-600 group-hover:text-white w-7 h-7 transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 leading-tight">Questões de partida, objetivos e metodologia</h3>
+                </div>
+                
+                <div class="hidden md:flex items-center text-slate-300"><i data-feather="arrow-right" class="w-6 h-6"></i></div>
+                
+                <div class="method-card group bg-white border border-slate-200 p-6 rounded-2xl flex-1 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 flex flex-col items-center justify-center text-center">
+                    <div class="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i data-feather="globe" class="text-orange-600 group-hover:text-white w-7 h-7 transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 leading-tight">Caracterização Físico-Demográfica</h3>
+                </div>
+                
+                <div class="hidden md:flex items-center text-slate-300"><i data-feather="arrow-right" class="w-6 h-6"></i></div>
+                
+                <div class="method-card group bg-white border border-slate-200 p-6 rounded-2xl flex-1 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 flex flex-col items-center justify-center text-center">
+                    <div class="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i data-feather="layers" class="text-orange-600 group-hover:text-white w-7 h-7 transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 leading-tight">Recolha de Dados e Análise de Mapas</h3>
+                </div>
+                
+                <div class="hidden md:flex items-center text-slate-300"><i data-feather="arrow-right" class="w-6 h-6"></i></div>
+                
+                <div class="method-card group bg-white border border-slate-200 p-6 rounded-2xl flex-1 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 flex flex-col items-center justify-center text-center">
+                    <div class="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i data-feather="shield" class="text-orange-600 group-hover:text-white w-7 h-7 transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 leading-tight">Proposta de Estratégias</h3>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-300 shadow-sm">
+                <table class="w-full text-sm text-left">
+                    
+                    <thead>
+                        <tr class="bg-slate-800 text-white">
+                            <th colspan="2" class="py-3 px-6 text-center font-bold uppercase tracking-wider text-xs">
+                                OBJETIVO 1<br>
+                                <span class="normal-case font-normal text-slate-300 text-sm">Caracterizar as áreas de estudo em termos físicos e populacionais</span>
+                            </th>
+                        </tr>
+                        <tr class="bg-slate-200 text-slate-700 text-xs font-bold uppercase">
+                            <th class="py-2 px-6 w-1/2 border-r border-slate-300">Questões de Partida</th>
+                            <th class="py-2 px-6 w-1/2">Metodologia<br><span class="normal-case font-normal text-xs">(Estudo Quantitativo & Fontes Secundárias)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white text-slate-600">
+                        <tr class="border-b border-slate-200">
+                            <td class="py-4 px-6 border-r border-slate-200 align-top">
+                                Quais são as principais <span class="underline decoration-slate-400">características físicas e populacionais</span> das áreas de estudo?
+                            </td>
+                            <td class="py-4 px-6 align-top">
+                                Utilização de artigos, Carta de Uso e Ocupação do Solo (2023) e do Modelo Digital do Terreno (MDT).
+                            </td>
+                        </tr>
+                    </tbody>
+
+                    <thead>
+                        <tr class="bg-slate-800 text-white">
+                            <th colspan="2" class="py-3 px-6 text-center font-bold uppercase tracking-wider text-xs border-t-2 border-slate-600">
+                                OBJETIVO 2<br>
+                                <span class="normal-case font-normal text-slate-300 text-sm">Avaliar a severidade, recorrência, IUR e áreas críticas de intervenção</span>
+                            </th>
+                        </tr>
+                        <tr class="bg-slate-200 text-slate-700 text-xs font-bold uppercase">
+                            <th class="py-2 px-6 w-1/2 border-r border-slate-300">Questões de Partida</th>
+                            <th class="py-2 px-6 w-1/2">Metodologia<br><span class="normal-case font-normal text-xs">(Estudo Quantitativo & Fontes Secundárias)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white text-slate-600">
+                        <tr class="border-b border-slate-200">
+                            <td class="py-4 px-6 border-r border-slate-200 align-top space-y-2">
+                                <p>Qual o nível de <span class="underline decoration-slate-400">severidade, recorrência e as áreas críticas</span> dos incêndios florestais da área de estudo?</p>
+                                <p>De que forma está delimitada a interface urbano-rural?</p>
+                                <p>Quais as florestas com maior risco de ignição?</p>
+                            </td>
+                            <td class="py-4 px-6 align-top">
+                                Utilização de diversos dados e mapeamento das variáveis.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                    <thead>
+                        <tr class="bg-slate-800 text-white">
+                            <th colspan="2" class="py-3 px-6 text-center font-bold uppercase tracking-wider text-xs border-t-2 border-slate-600">
+                                OBJETIVO 3<br>
+                                <span class="normal-case font-normal text-slate-300 text-sm">Propor estratégias de reflorestação e prevenção</span>
+                            </th>
+                        </tr>
+                        <tr class="bg-slate-200 text-slate-700 text-xs font-bold uppercase">
+                            <th class="py-2 px-6 w-1/2 border-r border-slate-300">Questões de Partida</th>
+                            <th class="py-2 px-6 w-1/2">Metodologia<br><span class="normal-case font-normal text-xs">(Estudo Quantitativo & Fontes Secundárias)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white text-slate-600">
+                        <tr>
+                            <td class="py-4 px-6 border-r border-slate-200 align-top space-y-2">
+                                <p>Existem <span class="underline decoration-slate-400">estratégias de reflorestação e recuperação da área ardida a serem implementadas</span>?</p>
+                                <p>E sobre prevenção de incêndios, existe algum <span class="underline decoration-slate-400">método a ser incorporado em Portugal</span>?</p>
+                            </td>
+                            <td class="py-4 px-6 align-top">
+                                Análise de casos de estudo de outras cidades e avaliação da sua aplicação à área de estudo.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+<section id="study-area" class="py-20 bg-white border-t border-slate-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-slate-900">Área de Estudo</h2>
+            
+            <div class="flex flex-col lg:flex-row gap-12 mb-20">
+                <div class="lg:w-1/3">
+                    <div class="sticky top-24">
+                        <div class="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-100 rounded-full">
+                            Contexto Geográfico
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-slate-800">Caracterização Física</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-justify">
+                            A área de estudo localiza-se no mais importante conjunto montanhoso português, a <strong>Cordilheira Central</strong>. A Serra do Açor tem uma altitude de <strong>1342 metros</strong>, a Serra da Gardunha de <strong>1227 metros</strong> e por fim a Serra da Estrela com <strong>1993 metros</strong>. 
+                        </p> 
+                        
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                                <span class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2"><i data-feather="maximize" class="w-4 h-4"></i> Área Total</span>
+                                <span class="font-bold text-slate-800">2,652 km²</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                                <span class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2"><i data-feather="arrow-up-right" class="w-4 h-4"></i> Altitude Máx.</span>
+                                <span class="font-bold text-slate-800">1,993 m</span>
+                            </div>
+                            <div class="flex items-center justify-between pb-2">
+                                <span class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2"><i data-feather="activity" class="w-4 h-4"></i> Declive Médio</span>
+                                <span class="font-bold text-slate-800">14°</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:w-2/3 grid md:grid-cols-2 gap-6">
+                    
+                    <div class="relative group rounded-2xl overflow-hidden shadow-lg border border-slate-200 cursor-pointer" onclick="openLightbox('img/Mapa de Enquadramento.jpg', 'Mapa de Enquadramento', 'Localização geográfica da área de estudo e limites administrativos.')">
+                        <div class="aspect-square bg-slate-800 relative">
+                            <img src="img/Mapa de Enquadramento.jpg" alt="Mapa de Enquadramento" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 drop-shadow-lg"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <p class="text-white font-bold text-sm flex items-center gap-2"><i data-feather="map-pin" class="w-4 h-4 text-orange-400"></i> Enquadramento Geográfico</p>
+                        </div>
+                    </div>
+
+                    <div class="relative group rounded-2xl overflow-hidden shadow-lg border border-slate-200 cursor-pointer" onclick="openLightbox('img/MDT.jpg', 'Modelo Digital de Terreno (MDT)', 'Representação da altimetria. As zonas mais elevadas correspondem às cumeadas principais.')">
+                        <div class="aspect-square bg-slate-800 relative">
+                            <img src="img/MDT.jpg" alt="MDT" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 drop-shadow-lg"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <p class="text-white font-bold text-sm flex items-center gap-2"><i data-feather="layers" class="w-4 h-4 text-blue-400"></i> MDT (Altimetria)</p>
+                        </div>
+                    </div>
+
+                    <div class="relative group rounded-2xl overflow-hidden shadow-lg border border-slate-200 cursor-pointer" onclick="openLightbox('img/Slope(º).jpg', 'Mapa de Declives (Slope)', 'Classificação da inclinação do terreno. Zonas a vermelho (>30%) apresentam maior risco de propagação rápida.')">
+                        <div class="aspect-square bg-slate-800 relative">
+                            <img src="img/Slope(º).jpg" alt="Slope Map" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 drop-shadow-lg"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <p class="text-white font-bold text-sm flex items-center gap-2"><i data-feather="trending-up" class="w-4 h-4 text-red-400"></i> Mapa de Declives</p>
+                        </div>
+                    </div>
+
+                    <div class="relative group rounded-2xl overflow-hidden shadow-lg border border-slate-200 cursor-pointer" onclick="openLightbox('img/tipo_floresta.jpg', 'Ocupação Florestal', 'Os tipos de espécies.')">
+                        <div class="aspect-square bg-slate-800 relative">
+                            <img src="img/tipo_floresta.jpg" alt="Ocupação Florestal" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 drop-shadow-lg"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <p class="text-white font-bold text-sm flex items-center gap-2"><i data-feather="tree" class="w-4 h-4 text-green-400"></i> Tipo de Floresta</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="w-full h-px bg-slate-200 my-16"></div>
+            <div class="flex flex-col lg:flex-row gap-12 items-center">
+                <div class="lg:w-1/3">
+                    <div class="sticky top-24">
+                        <div class="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-blue-600 uppercase bg-blue-100 rounded-full">
+                            Contexto Demográfico
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-slate-800">Dinâmica Populacional</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-justify">
+                             A análise dos censos <strong>(2011-2021)</strong> para os municípios afetados revela uma tendência preocupante de <strong>decréscimo populacional</strong>. O êxodo rural resulta no abandono das terras, aumentando a carga de combustível florestal disponível.
+                        </p>
+                        
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">Impacte no Risco de Incêndio</h4>
+                            <ul class="space-y-3 text-sm text-slate-600">
+                                <li class="flex items-start gap-2">
+                                    <i data-feather="users" class="w-4 h-4 text-blue-500 mt-1"></i>
+                                    <span>Diminuição da população para gestão florestal.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i data-feather="alert-circle" class="w-4 h-4 text-red-500 mt-1"></i>
+                                    <span>Aumento de áreas de mato denso sem intervenção humana.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i data-feather="trending-up" class="w-4 h-4 text-orange-500 mt-1"></i>
+                                    <span>Acumulação de combustível vegetal.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:w-2/3 w-full">
+                    <div class="relative group rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-white p-4 cursor-pointer" onclick="openLightbox('img/Social.png', 'Densidade populacional (2011-2021)','Gráfico comparativo da densidade populacional por município.')">
+                        <div class="relative">
+                            <img src="img/Social.png" alt="Gráfico de População" class="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-slate-800 opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 drop-shadow-lg"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-wide">Fonte: INE (Censos 2011/2021)</p>
+                            <span class="text-blue-600 text-sm font-medium flex items-center gap-1">Ver Gráfico <i data-feather="bar-chart" class="w-4 h-4"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="results" class="relative bg-slate-50">
+        <div class="sticky top-0 h-screen flex flex-col lg:flex-row">
+            
+            <div id="map-container" class="lg:w-1/2 h-1/2 lg:h-screen bg-white flex items-center justify-center border-r border-slate-200 relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
+                
+                <img id="dynamic-map-image" src="img/Área Ardida.jpg" class="relative z-10 max-h-screen w-full object-cover shadow-2xl" alt="Mapa de Análise">
+                
+                <div class="absolute bottom-10 left-10 z-20 bg-black/80 backdrop-blur-md px-6 py-3 rounded-lg border-l-4 border-orange-500">
+                    <p id="map-legend" class="text-white font-mono font-bold">Extensão da Área Ardida</p>
+                </div>
+
+                <button onclick="nextMapStep()" class="absolute bottom-10 right-10 z-30 w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center text-white shadow-2xl nav-btn-hover border-4 border-slate-800 transition-all duration-300" title="Próximo Mapa">
+                    <i data-feather="arrow-down" class="w-8 h-8"></i>
+                </button>
+            </div>
+            
+            <div id="text-column" class="lg:w-1/2 h-1/2 lg:h-screen overflow-y-auto bg-white scroll-smooth">
+                
+                <div id="step-1" class="map-step min-h-screen py-24 px-10 flex items-center border-b border-slate-100" data-img="img/Área Ardida.jpg" data-title="Extensão da Área Ardida">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm">1</span>
+                            <span class="text-orange-600 font-bold tracking-widest text-xs uppercase">Perímetro do Fogo</span>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-6 text-slate-900">Delimitação das Áreas Ardidas</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-lg">
+                            A área ardida considerada neste estudo ocupa cerca de 533 km², correspondendo a aproximadamente <strong>20% da área total dos municípios</strong>. De acordo com o 6º Relatório Provisório de Incêndios Rurais de 2025 do ICNF, entre 1 de janeiro e 15 de setembro de 2025, registaram-se <strong>7 305 incêndios rurais em Portugal</strong>, resultando em um total de <strong>260 569 hectares</strong> de área ardida. A área ardida considerada neste estudo, de 53 300 hectares, representa assim cerca de <strong>20,4%</strong> do total de incêndios rurais no país durante esse período.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-orange-50 rounded-lg border border-orange-100">
+                                <p class="text-xs text-orange-800 uppercase font-bold">Total Hectares</p>
+                                <p class="text-3xl font-bold text-slate-800">53,300</p>
+                            </div>
+                            <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                <p class="text-xs text-slate-500 uppercase font-bold">Data de Início</p>
+                                <p class="text-xl font-bold text-slate-800">13 Ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-2" class="map-step min-h-screen py-24 px-10 flex items-center border-b border-slate-100" data-img="img/IUR.jpg" data-title="Interface Urbano-Florestal (IUR)">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm">2</span>
+                            <span class="text-blue-600 font-bold tracking-widest text-xs uppercase">Risco Humano</span>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-6 text-slate-900">Análise da IUR</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-lg">
+                            Segundo Vieira et al (2009) a definição de <strong>Interface Urbano-Rural</strong> diz respeito às áreas de contacto entre o espaço com ocupação agrícola, florestal ou inculto e o espaço edificado (urbano).
+                        </p>
+                        <div class="mt-6 relative group rounded-xl overflow-hidden shadow-md border border-slate-200 cursor-pointer" onclick="openLightbox('img/5.jpg', 'Dinâmica da Interface Urbano-Rural', 'Esquema conceptual')">
+                            <img src="img/5.jpg" alt="Esquema IUR" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-slate-800 opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8"></i>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-wide">    Fonte: Vieira, et al., 2009; Alves, et al., 2022.</p>
+                            <span class="text-blue-600 text-sm font-medium flex items-center gap-1">Ver Gráfico <i data-feather="bar-chart" class="w-4 h-4"></i></span>
+                        </div>
+                             </div>
+
+                    </div>
+                </div>
+
+                <div id="step-3" class="map-step min-h-screen py-24 px-10 flex items-center border-b border-slate-100" data-img="img/Severidade_foco.jpg" data-title="Carta de Severidade">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm">3</span>
+                            <span class="text-red-600 font-bold tracking-widest text-xs uppercase">Intensidade do Dano</span>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-6 text-slate-900">Severidade</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-lg">
+                            A severidade surgiu da necessidade de descrever como a <strong>intensidade dos incêndios</strong> afeta os ecossistemas após a sua ocorrência. A severidade dos incêndios refere-se à grandeza do impacte <strong>direto</strong> e <strong>imediato</strong> dos incêndios e reflete o calor total libertado pela combustão de biomassa, estando relacionada com a <strong>perda ou destruição do material vegetal e da matéria orgânica</strong> do solo que é normalmente expressa pela magnitude do impacte dos incêndios numa área (Bento-Gonçalves, 2019).
+                        </p>
+                        <div class="space-y-2 text-sm font-medium">
+                           
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-4" class="map-step min-h-screen py-24 px-10 flex items-center border-b border-slate-100" data-img="img/Recorrência.jpg" data-title="Carta de Recorrência">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm">4</span>
+                            <span class="text-purple-600 font-bold tracking-widest text-xs uppercase">Histórico de Fogo</span>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-6 text-slate-900">Padrões de Recorrência</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-lg">
+                            <strong>A recorrência de incêndios corresponde ao número de vezes que uma mesma superfície ou parcela de território se queima ao longo de um intervalo de tempo, quantificada mediante o intervalo de retorno de fogo (Santos, S., et al, 2023).</strong> Ao articular os dados mais recentes com a informação histórica disponibilizada pelo ICNF, foi possível integrar uma série temporal de 35 anos (1990–2025) de ocorrências de incêndios florestais, permitindo identificar as áreas com maior frequência de fogo.
+                        </p>
+                        <div class="    ">
+.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-5" class="map-step min-h-screen py-24 px-10 flex items-center" data-img="img/Áreas Críticas.jpg" data-title="Áreas Críticas">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm">5</span>
+                            <span class="text-green-600 font-bold tracking-widest text-xs uppercase">Síntese Final</span>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-6 text-slate-900">Mapa das Áreas Críticas</h3>
+                        <p class="text-slate-600 mb-8 leading-relaxed text-lg">
+                            As Áreas Críticas combinam a Recorrência com Declives, Focos de Incêndio, Ocupação do Solo, Interfaces Urbano-Rurais e a Rede primária de faixas de gestão de combustíveis. 
+                        </p>
+                        
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+        <section id="conclusions" class="py-24 bg-slate-50 border-t border-slate-200">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-slate-900">Conclusões & Implicações</h2>
+            
+            <div class="flex flex-col lg:flex-row gap-12 items-center mb-20">
+                
+                <div class="lg:w-1/2">
+                    <h3 class="text-2xl font-bold mb-4 text-slate-800">Tipo de Floresta Afetada</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed text-justify">
+                        A análise espacial, suportada por sobreposição cartográfica, demonstra a vulnerabilidade das monoculturas aos incêndios florestais. A área ardida concentrou-se predominantemente em povoamentos de <strong>Eucalipto (34%)</strong> e <strong>Pinheiro-bravo (28,4%)</strong>, confirmando a elevada carga combustível destas formações. Enquanto o pinheiro-bravo é resinoso por natureza, o eucalipto apresenta inflamabilidade igualmente elevada devido ao teor significativo de óleos essenciais voláteis, que aumentam a probabilidade de ignição e a velocidade de propagação do fogo. Em contraste, as <strong>Outras Folhosas (16,6%)</strong> registaram proporção substancialmente inferior de área ardida.
+                    </p>
+                    
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg">
+                        <h4 class="font-bold text-slate-800 mb-6 text-center uppercase tracking-wider text-xs">Distribuição da Área Ardida por Espécie</h4>
+                        <div class="relative h-64 w-full">
+                            <canvas id="forestChart"></canvas>
+                        </div>
+                    </div>
+
+                    
+                    </p>
+                </div>
+                
+                <div class="lg:w-1/2 w-full">
+                    <div class="relative group rounded-2xl overflow-hidden shadow-2xl border border-slate-200 cursor-pointer" onclick="openLightbox('img/floresta_ardida.jpg', 'Tipo de Floresta Afetada', 'Mapa relativo às espécies que arderam durante o incêndio florestal')">
+                        <div class="aspect-video bg-slate-800 relative">
+                            <img src="img/floresta_ardida.jpg" alt="Mapa Tipo de Floresta Afetada" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 drop-shadow-lg"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <p class="text-white font-bold text-sm flex items-center gap-2"><i data-feather="layers" class="w-4 h-4 text-green-400"></i> Ocupação do Solo vs Área Ardida</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16">
+                <h3 class="text-2xl font-bold mb-10 text-slate-800 text-center">Estratégias de Intervenção</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    
+                    <div class="group relative rounded-2xl overflow-hidden shadow-xl bg-white border border-slate-200 transition-all hover:shadow-2xl">
+                        <div class="h-72 overflow-hidden relative cursor-pointer" onclick="openLightbox('img/4.jpg', 'Drones na Reflorestação - Arganil', 'Utilização de drones para a sementeira aérea em áreas de difícil acesso, permitindo cobrir grandes áreas queimadas rapidamente.')">
+                            <img src="img/4.jpg" alt="Drones na Reflorestação" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 drop-shadow-lg"></i>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                <div class="inline-block px-3 py-1 bg-green-500/90 backdrop-blur rounded-full text-white text-xs font-bold tracking-widest uppercase mb-1">Tecnologia</div>
+                                <h4 class="text-white font-bold text-xl drop-shadow-md">Sementeira Aérea com Drones</h4>
+                            </div>
+                        </div>
+
+                        <div class="p-8">
+                            <h4 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                                <i data-feather="feather" class="w-5 h-5"></i> Reflorestação Estratégica
+                            </h4>
+                            <p class="text-slate-600 leading-relaxed text-justify">
+                                Drones estão a lançar 50 kg de sementes de centeio nas áreas ardidas da Serra do Açor para regenerar os solos, reduzir a erosão e impedir que as cinzas cheguem às linhas de água. A ação integra um projeto-piloto da Comunidade Intermunicipal da Região de Coimbra (CIM-RC) e, nesta fase inicial, testa a eficácia da sementeira e o impacto do vento na sua distribuição. Se os resultados forem positivos, a técnica será aplicada de forma alargada nas zonas com maior risco de erosão, criando rapidamente um coberto vegetal capaz de estabilizar o solo pós-incêndio.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="group relative rounded-2xl overflow-hidden shadow-xl bg-white border border-slate-200 transition-all hover:shadow-2xl">
+                        <div class="h-72 overflow-hidden relative cursor-pointer" onclick="openLightbox('img/3.jpg', 'Rede de Sensores IoT', 'Protótipos de sensores sem fios de baixo custo para deteção precoce de ignições e monitorização de microclima.')">
+                            <img src="img/3.jpg" alt="Sensores de Prevenção" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <i data-feather="zoom-in" class="text-white opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10 drop-shadow-lg"></i>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                <div class="inline-block px-3 py-1 bg-orange-500/90 backdrop-blur rounded-full text-white text-xs font-bold tracking-widest uppercase mb-1">Inovação</div>
+                                <h4 class="text-white font-bold text-xl drop-shadow-md">Rede de Sensores IoT</h4>
+                            </div>
+                        </div>
+
+                        <div class="p-8">
+                            <h4 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
+                                <i data-feather="shield" class="w-5 h-5"></i> Monitorização Preventiva
+                            </h4>
+                            <p class="text-slate-600 leading-relaxed text-justify">
+                                Portugal integra o projeto europeu SenForFire, que desenvolve redes de sensores sem fios de baixo custo para a prevenção e deteção precoce de incêndios florestais. Estas redes monitorizam, em tempo real, parâmetros meteorológicos e ambientais associados ao risco de incêndio, apoiando a decisão local.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-slate-400 py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div>
+                    <h4 class="text-white text-lg font-bold mb-6 flex items-center gap-2">
+                        <i data-feather="tool" class="w-4 h-4"></i> Ferramentas & Dados
+                    </h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="hover:text-white transition-colors">• Landsat 8/9 </li>
+                        <li class="hover:text-white transition-colors">• ArcGIS Pro </li>
+
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white text-lg font-bold mb-6 flex items-center gap-2">
+                        <i data-feather="book-open" class="w-4 h-4"></i> Referências Académicas
+                    </h4>
+                    <ul class="space-y-3 text-sm">
+                        <li>1. Santos, S. M., Bento-Gonçalves, A., Vieira, A., & Teixeira, G.  (2023). Grandes Incêndios Florestais no noroeste de Portugal: Explorando padrões espaciais entre 2001 e 2020, com base em dados Landsat.</li>
+                        <li>2. Vieira, A., Bento Gonçalves, A., Lourenço, L., Oliveira Martins, C., & Ferreira Leite, F. (2009). Risco de incêndio florestal em áreas de interface urbano-rural: o exemplo do Ave.</li>
+                        <li>3. Alves, A., Marcelino, F., Gomes, E., Rocha, J., & Caetano, M. (2022). Spatiotemporal Land-Use Dynamics in Continental Portugal 1995–2018. </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white text-lg font-bold mb-6 flex items-center gap-2">
+                        <i data-feather="users" class="w-4 h-4"></i> Unidade Curricular
+                    </h4>
+                    <p class="text-sm leading-relaxed mb-4">
+                        <li> Análise Espacial | Mestrado em Geografia
+                    </p>
+                    <div class="flex gap-4">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-slate-800 text-center text-xs text-slate-600">
+                <p>&copy; David Quintas | Nuno Carvalho</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="global-nav-btn" onclick="scrollToNextSection()" class="fixed bottom-8 right-8 z-[9999] bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-full text-white hover:bg-orange-500 hover:border-orange-500 transition-all shadow-2xl transform hover:scale-110 flex items-center justify-center group">
+        <i data-feather="arrow-down" class="w-8 h-8 group-hover:animate-bounce"></i>
+    </button>
+
+    <script src="script.js"></script>
+    <script>
+        feather.replace();
+
+        // 1. CONFIGURAÇÃO DO CHART.JS (GRÁFICO FLORESTAL)
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('forestChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Eucalipto', 'Pinheiro Bravo', 'Outras Folhosas', 'Sobreiro', 'Outras Resinosas'],
+                    datasets: [{
+                        data: [34, 28.4, 16.6, 13.5, 7.4],
+                        backgroundColor: [
+                            '#4ADE80', // Eucalipto (Verde Vibrante)
+                            '#15803D', // Pinheiro (Verde Escuro)
+                            '#FACC15', // Outras Folhosas (Amarelo)
+                            '#84CC16', // Sobreiro (Lima)
+                            '#14B8A6'  // Outras Res (Teal)
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: { family: "'Inter', sans-serif", size: 11 },
+                                color: '#475569',
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            },
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: "'Inter', sans-serif" },
+                            bodyFont: { family: "'Inter', sans-serif" },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    cutout: '65%', // Tamanho do buraco no meio (Donut)
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+
+            // 2. SCROLLYTELLING LOGIC & BUTTON NAVIGATION
+            const mapImage = document.getElementById('dynamic-map-image');
+            const mapLegend = document.getElementById('map-legend');
+            const steps = document.querySelectorAll('.map-step');
+            const textColumn = document.getElementById('text-column');
+
+            const observerOptions = {
+                root: textColumn,
+                rootMargin: '0px',
+                threshold: 0.5
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const newImg = entry.target.getAttribute('data-img');
+                        const newTitle = entry.target.getAttribute('data-title');
+                        
+                        if (!mapImage.src.includes(encodeURI(newImg)) && !mapImage.src.includes(newImg)) {
+                            mapImage.classList.add('fade-out');
+                            setTimeout(() => {
+                                mapImage.src = newImg;
+                                mapLegend.innerText = newTitle;
+                                mapImage.classList.remove('fade-out');
+                            }, 300);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            steps.forEach(step => observer.observe(step));
+
+            // 3. Lógica do Botão "Próximo Mapa"
+            window.nextMapStep = function() {
+                let currentStepIndex = -1;
+                const containerTop = textColumn.scrollTop;
+                const containerHeight = textColumn.clientHeight;
+                const containerCenter = containerTop + (containerHeight / 2);
+
+                steps.forEach((step, index) => {
+                    const stepTop = step.offsetTop;
+                    const stepBottom = stepTop + step.clientHeight;
+                    if (stepTop <= containerCenter && stepBottom >= containerCenter) {
+                        currentStepIndex = index;
+                    }
+                });
+
+                if (currentStepIndex === -1) currentStepIndex = 0;
+
+                if (currentStepIndex < steps.length - 1) {
+                    const nextStep = steps[currentStepIndex + 1];
+                    nextStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    document.getElementById('conclusions').scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+        });
+
+        // 4. GLOBAL NAVIGATION LOGIC
+        function scrollToNextSection() {
+            const sectionIds = ['hero', 'video-section', 'methodology', 'study-area', 'results', 'conclusions'];
+            const sections = sectionIds.map(id => document.getElementById(id)).filter(el => el);
+            
+            const scrollPos = window.scrollY + 150;
+            let currentSectionIndex = -1;
+
+            sections.forEach((section, index) => {
+                if (section.offsetTop <= scrollPos && (section.offsetTop + section.offsetHeight) > scrollPos) {
+                    currentSectionIndex = index;
+                }
+            });
+
+            if (currentSectionIndex !== -1 && currentSectionIndex < sections.length - 1) {
+                sections[currentSectionIndex + 1].scrollIntoView({ behavior: 'smooth' });
+            } else {
+                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+        }
+
+        // LIGHTBOX LOGIC
+        function openLightbox(imgSrc, title, desc) {
+            const lightbox = document.getElementById('lightbox');
+            if (!lightbox) {
+               const div = document.createElement('div');
+               div.id = 'lightbox';
+               div.className = 'fixed inset-0 z-[60] bg-black/95 hidden flex items-center justify-center p-4 backdrop-blur-sm';
+               div.onclick = closeLightbox;
+               div.innerHTML = `
+                    <button class="absolute top-6 right-6 text-white hover:text-red-500 transition"><i data-feather="x" class="w-10 h-10"></i></button>
+                    <div class="max-w-7xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+                        <img id="lightbox-img" src="" class="max-h-[80vh] rounded-lg shadow-2xl border border-slate-700">
+                        <div class="mt-6 text-center">
+                            <h3 id="lightbox-title" class="text-2xl font-bold text-white"></h3>
+                            <p id="lightbox-desc" class="text-gray-300 mt-2 text-lg"></p>
+                        </div>
+                    </div>`;
+               document.body.appendChild(div);
+               feather.replace();
+            }
+            
+            const lb = document.getElementById('lightbox');
+            document.getElementById('lightbox-img').src = imgSrc;
+            document.getElementById('lightbox-title').innerText = title;
+            document.getElementById('lightbox-desc').innerText = desc;
+            lb.classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
